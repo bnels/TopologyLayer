@@ -3,6 +3,7 @@
 #include "hom.h"
 #include "cohom.h"
 #include "complex.h"
+#include "backward.h"
 
 namespace py = pybind11;
 

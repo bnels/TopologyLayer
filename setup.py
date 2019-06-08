@@ -17,7 +17,7 @@ setup(name='topologylayer',
                         'topologylayer/functional/persistence/cohom.cpp',
                         'topologylayer/functional/persistence/hom.cpp',
                         'topologylayer/functional/persistence/complex.cpp',
-                        'topologylayer/functional/persistence/cocycle.cpp'],
+                        'topologylayer/functional/persistence/backward.cpp'],
                         include_dirs=[include_dir],
                         extra_compile_args=extra['cxx']
                         )

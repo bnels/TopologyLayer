@@ -5,6 +5,9 @@
 #include <cstddef>
 #include "sparsevec.h"
 
+#include <torch/extension.h>
+namespace py = pybind11;
+
 
 class Cocycle{
 	public:
@@ -23,19 +26,31 @@ class Cocycle{
 		Cocycle(size_t x, std::vector<int> y) :  index(x) , cochain(y) {}
 
 		// for debug purposes
-		void insert(int x);
+		inline void insert(int x) {
+			cochain.insert(x);
+		}
 
 		// add two cocycles over Z_2
-		void add(const Cocycle &x);
+		inline void add(const Cocycle &x) {
+			cochain.add(x.cochain);
+			return;
+		}
 
 		// dot product of two cocycles
-		int dot(const Cocycle &x) const;
+		inline int dot(const Cocycle &x) const {
+			return cochain.dot(x.cochain);
+		}
 
 		// dimension - number of nonzero entries -1
-		int dim() const;
+		int dim() const {
+			return (cochain.nzinds.size()==0) ? 0 : cochain.nzinds.size()-1;
+		}
 
 		// debug function
-		void print();
+		void print() {
+			py::print(index, " : ");
+			cochain.print();
+		}
 
 };
 
