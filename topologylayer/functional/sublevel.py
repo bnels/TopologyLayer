@@ -4,6 +4,7 @@ import torch
 
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackward, persistenceForwardHom
+from .persistence import persistenceForwardUF
 
 class SubLevelSetDiagram(Function):
     """
@@ -28,6 +29,9 @@ class SubLevelSetDiagram(Function):
             ret = persistenceForwardHom(X, maxdim, 1)
         elif alg == 'cohom':
             ret = persistenceForwardCohom(X, maxdim)
+        elif alg == 'union_find':
+            assert maxdim == 0
+            ret = [persistenceForwardUF(X)]
         ctx.X = X
         return tuple(ret)
 

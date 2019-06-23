@@ -2,6 +2,7 @@
 
 #include "hom.h"
 #include "cohom.h"
+#include "union_find.h"
 #include "complex.h"
 #include "backward.h"
 
@@ -29,4 +30,5 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("persistenceBackward", &persistence_backward);
   m.def("persistenceBackwardFlag", &persistence_backward_flag);
   m.def("persistenceForwardHom", &persistence_forward_hom);
+  m.def("persistenceForwardUF", &persistence_forward_uf);
 }

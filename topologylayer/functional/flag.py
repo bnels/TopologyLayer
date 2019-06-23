@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackwardFlag, persistenceForwardHom
+from .persistence import persistenceForwardUF
 
 class FlagDiagram(Function):
     """
@@ -25,6 +26,9 @@ class FlagDiagram(Function):
             ret = persistenceForwardHom(X, maxdim, 1)
         elif alg == 'cohom':
             ret = persistenceForwardCohom(X, maxdim)
+        elif alg == 'union_find':
+            assert maxdim == 0
+            ret = [persistenceForwardUF(X)]
         ctx.X = X
         ctx.save_for_backward(y)
         return tuple(ret)

@@ -1,5 +1,5 @@
 from __future__ import print_function
-from topologylayer.nn import LevelSetLayer1D
+from topologylayer.nn import AlphaLayer
 import matplotlib.pyplot as plt
 
 import torch
@@ -15,9 +15,9 @@ def sum_finite(d):
 # apparently there is some overhead the first time backward is called.
 # we'll just get it over with now.
 n = 20
-y = torch.rand(n, dtype=torch.float).requires_grad_(True)
-layer1 = LevelSetLayer1D(n, False)
-dgm, issublevel = layer1(y)
+y = torch.rand(n, 2, dtype=torch.float).requires_grad_(True)
+layer = AlphaLayer(maxdim=0)
+dgm, issublevel = layer(y)
 p = sum_finite(dgm[0])
 p.backward()
 
@@ -32,14 +32,14 @@ for alg in algs:
     tbs[alg] = []
 
 
-ns = [100, 200, 400, 1000, 2000, 4000, 8000, 16000]
+ns = [10, 50, 100, 200, 500, 1000, 2000]
 
 for alg in algs:
     for n in ns:
-        y = torch.rand(n, dtype=torch.float).requires_grad_(True)
+        y = torch.rand(n, 2, dtype=torch.float).requires_grad_(True)
 
         t0 = time.time()
-        layer = LevelSetLayer1D(n, False, alg=alg)
+        layer = AlphaLayer(maxdim=0, alg=alg)
         ta = time.time() - t0
         tcs[alg].append(ta)
 
@@ -59,4 +59,4 @@ for alg in algs:
 plt.legend()
 plt.xlabel("n")
 plt.ylabel("forward time")
-plt.savefig("alg_time_forward.png")
+plt.savefig("alg_time_forward_alpha0.png")
