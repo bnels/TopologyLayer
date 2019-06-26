@@ -1,4 +1,4 @@
-from ..functional.sublevel import SubLevelSetDiagram
+from ..functional.sublevel import SubLevelSetDiagram, CriticalEdges
 from topologylayer.functional.persistence import SimplicialComplex
 from topologylayer.util.construction import unique_simplices
 
@@ -43,6 +43,11 @@ class LevelSetLayer(nn.Module):
             dgms = self.fnobj.apply(self.complex, f, self.maxdim, self.alg)
             dgms = tuple(-dgm for dgm in dgms)
             return dgms, False
+
+    def CriticalEdges(self, f):
+        if not self.sublevel:
+            f = -f
+        return CriticalEdges(self.complex, f)
 
 
 

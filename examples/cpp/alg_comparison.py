@@ -21,7 +21,7 @@ dgm, issublevel = layer1(y)
 p = sum_finite(dgm[0])
 p.backward()
 
-algs = ['hom', 'hom2', 'cohom', 'union_find']
+algs = ['hom', 'hom2', 'union_find', 'union_find2']
 
 tcs = {}
 tfs = {}
@@ -32,7 +32,7 @@ for alg in algs:
     tbs[alg] = []
 
 
-ns = [100, 200, 400, 1000, 2000, 4000, 8000, 16000]
+ns = [100, 200, 400, 1000, 2000, 4000, 8000, 16000, 32000, 64000]
 
 for alg in algs:
     for n in ns:

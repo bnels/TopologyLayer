@@ -1,5 +1,5 @@
 from topologylayer.util.construction import unique_simplices
-from topologylayer.functional.flag import FlagDiagram
+from topologylayer.functional.flag import FlagDiagram, CriticalEdges
 from topologylayer.functional.persistence import SimplicialComplex
 from scipy.spatial import Delaunay
 
@@ -54,7 +54,7 @@ class AlphaLayer(nn.Module):
         self.fnobj = FlagDiagram()
         self.alg = alg
 
-    def forward(self, x):
+    def init_complex(self, x):
         xnp = x.data.numpy()
         complex = None
         if xnp.shape[1] == 1:
@@ -63,5 +63,13 @@ class AlphaLayer(nn.Module):
         else:
             complex = delaunay_complex(xnp, maxdim=self.maxdim+1)
         complex.initialize()
+        return complex
+
+    def forward(self, x):
+        complex = self.init_complex(x)
         dgms = self.fnobj.apply(complex, x, self.maxdim, self.alg)
         return dgms, True
+
+    def CriticalEdges(self, x):
+        complex = self.init_complex(x)
+        return CriticalEdges(complex, x)

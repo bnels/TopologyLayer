@@ -1,10 +1,11 @@
 from __future__ import print_function
 
 import torch
+import numpy as np
 
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackward, persistenceForwardHom
-from .persistence import persistenceForwardUF
+from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges
 
 class SubLevelSetDiagram(Function):
     """
@@ -32,6 +33,9 @@ class SubLevelSetDiagram(Function):
         elif alg == 'union_find':
             assert maxdim == 0
             ret = [persistenceForwardUF(X)]
+        elif alg == 'union_find2':
+            assert maxdim == 0
+            ret = [persistenceForwardUF2(X)]
         ctx.X = X
         return tuple(ret)
 
@@ -43,3 +47,12 @@ class SubLevelSetDiagram(Function):
         grad_ret = list(grad_dgms)
         grad_f = persistenceBackward(X, grad_ret)
         return None, grad_f.view(retshape), None, None
+
+
+def CriticalEdges(X, y):
+    """
+    return critical edges of a Flag complex
+    """
+    X.extendFloat(y)
+    edges = np.array(critEdges(X))
+    return edges.reshape(-1, 2)

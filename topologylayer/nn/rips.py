@@ -1,5 +1,5 @@
 from topologylayer.util.construction import clique_complex
-from topologylayer.functional.flag import FlagDiagram
+from topologylayer.functional.flag import FlagDiagram, CriticalEdges
 
 import torch
 import torch.nn as nn
@@ -26,3 +26,6 @@ class RipsLayer(nn.Module):
     def forward(self, x):
         dgms = self.fnobj.apply(self.complex, x, self.maxdim, self.alg)
         return dgms, True
+
+    def CriticalEdges(self, x):
+        return CriticalEdges(self.complex, x)

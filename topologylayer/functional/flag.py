@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import numpy as np
+
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackwardFlag, persistenceForwardHom
-from .persistence import persistenceForwardUF
+from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges
 
 class FlagDiagram(Function):
     """
@@ -29,6 +31,9 @@ class FlagDiagram(Function):
         elif alg == 'union_find':
             assert maxdim == 0
             ret = [persistenceForwardUF(X)]
+        elif alg == 'union_find2':
+            assert maxdim == 0
+            ret = [persistenceForwardUF2(X)]
         ctx.X = X
         ctx.save_for_backward(y)
         return tuple(ret)
@@ -41,3 +46,12 @@ class FlagDiagram(Function):
         grad_ret = list(grad_dgms)
         grad_y = persistenceBackwardFlag(X, y, grad_ret)
         return None, grad_y, None, None
+
+
+def CriticalEdges(X, y):
+    """
+    return critical edges of a Flag complex
+    """
+    X.extendFlag(y)
+    edges = np.array(critEdges(X))
+    return edges.reshape(-1, 2)

@@ -11,7 +11,7 @@ class Levelset1dsuper(unittest.TestCase):
         from topologylayer.nn import LevelSetLayer1D
 
         # superlevel set
-        for alg in ['hom', 'hom2', 'cohom', 'union_find']:
+        for alg in ['hom', 'hom2', 'cohom', 'union_find', 'union_find2']:
             layer = LevelSetLayer1D(size=3, sublevel=False, alg=alg)
             y = torch.tensor([1,0,1], dtype=torch.float).requires_grad_(True)
 
@@ -40,7 +40,7 @@ class Levelset1dsub(unittest.TestCase):
         from topologylayer.nn import LevelSetLayer1D
 
         # sublevel set
-        for alg in ['hom', 'hom2', 'cohom', 'union_find']:
+        for alg in ['hom', 'hom2', 'cohom', 'union_find', 'union_find2']:
             layer = LevelSetLayer1D(size=3, sublevel=True, alg=alg)
             y = torch.tensor([1,0,1], dtype=torch.float).requires_grad_(True)
 

@@ -31,4 +31,6 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("persistenceBackwardFlag", &persistence_backward_flag);
   m.def("persistenceForwardHom", &persistence_forward_hom);
   m.def("persistenceForwardUF", &persistence_forward_uf);
+  m.def("persistenceForwardUF2", &persistence_forward_uf2);
+  m.def("critEdges", &crit_edges_uf);
 }
