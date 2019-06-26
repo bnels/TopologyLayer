@@ -366,6 +366,23 @@ __Warning:__ there are currently no checks to make sure a `SimplicialComplex` do
 
 __Warning:__ the persistence computation currently assumes that the complex is acyclic at the end of the filtration in order to precompute the number of barcode pairs.
 
+# Experimental
+
+## Union Find Backends
+
+For H0 persistence, you can use `alg='union_find'` or `alg='union_find2'` in any persistence layer.
+Note that you should get an error if you try to compute higher dimensional persistence
+
+## Critical Edges
+
+You can obtain critical edges for H0 persistence for any layer using
+`edges = layer.CriticalEdges(y)`
+where `y` is a `torch.tensor` that would be used in the relevant persistence calculation.  Note that `edges` form a minimum spanning tree (forest if the complex is disconnected) with filtration weights on edges.
+
+`edges` is a `N x 2` NumPy array which records edges for which components merge, where `N` is the number of finite H0 bars. Edges are returned in filtration order so `edges[k]` is the `k`th edge.
+Note that this does not return a persistence diagram.
+
+
 
 # (Deprecated) Dionysus Drivers
 
