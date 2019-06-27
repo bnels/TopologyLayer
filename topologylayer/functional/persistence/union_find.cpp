@@ -10,7 +10,7 @@
 #include "union_find.h"
 
 // find root node of tree containing 0-cell i
-int find_parent(std::vector<int> parent, int i) {
+int find_parent(std::vector<int> &parent, int i) {
   while (i != parent[i]) {
     i = parent[i];
   }
@@ -113,7 +113,7 @@ torch::Tensor persistence_forward_uf(SimplicialComplex &X) {
 // also find depth of tree
 // *pi will be set to parent node
 // *depthi with be set to depth of tree
-void find_parent_depth(std::vector<int> parent, int i, int *pi, int *depthi) {
+void find_parent_depth(std::vector<int> &parent, int i, int *pi, int *depthi) {
 	*depthi = 0;
 	*pi = i;
   while (*pi != parent[*pi]) {
@@ -312,6 +312,87 @@ std::vector<int> crit_edges_uf(SimplicialComplex &X) {
 				 parent[i] = pj;
 				 parent[j] = pj;
 			 }
+			 nfinite++;
+			 // if we've found spanning tree, then break
+			 if (nfinite == N - 1) { break; }
+		 }
+		 // else continue
+	}
+
+	return edges;
+}
+
+
+int find_set(int i, std::vector<int> &parent) {
+	if (i != parent[i]) {
+		parent[i] = find_set(parent[i], parent);
+	}
+	return parent[i];
+}
+
+
+/*
+  compute critical edges for 0-dimensional persistence barcode using union-find algorithm
+  INPUTS:
+		X - simplicial complex
+			IMPORTANT: assumes that X has been initialized, and filtration has been extended
+	OUTPUT: edges = std::vector<int>
+	(i,j) = (edges[2*k], edges[2*k+1]) is kth critical edge
+	WARNING:
+	Does not return diagram, or set X.backprop_lookup
+*/
+// returns critical 1-cells in ascending order
+// strict union-find imlementation
+std::vector<int> crit_edges_uf2(SimplicialComplex &X) {
+
+   // produce sort permutation on X
+   X.sortedOrder();
+
+   // initialize edge vector
+	 int N = X.numPairs(0);
+	 std::vector<int> edges;
+	 edges.reserve(2*N - 2); // maximum number of critical edges
+
+	 // initialize parent vector
+	 std::vector<int> parent(N);
+	 std::iota(parent.begin(), parent.end(), 0);
+	 // ranks of each set
+	 std::vector<int> rank(N);
+	 std::fill(rank.begin(), rank.end(), 0);
+
+
+	 int nfinite = 0; // number of finite bars
+	 for (size_t k : X.filtration_perm ) {
+		 // loop over cells in permutation order
+		 if (X.dim(k) == 1) {
+			 // if a 1-cell, set:
+			 // death index in X.backprop_lookup
+			 // death time in diagram
+
+			 // first, get simplices on boundary
+			 int i = X.cells[k][0];
+			 int j = X.cells[k][1];
+
+			 // find parents
+			 int pi = find_set(i, parent);
+			 int pj = find_set(j, parent);
+
+			 // if parents are same, nothing to do
+			 if (pi == pj) { continue; }
+			 // else the edge is critical
+			 edges.push_back(i);
+			 edges.push_back(j);
+
+			 // merge sets
+			 if (rank[pi] > rank[pj]) {
+				 parent[pj] = pi;
+			 } else {
+				 parent[pi] = pj;
+				 if (rank[pi] == rank[pj]) {
+					 (rank[pj])++;
+				 }
+			 }
+
 			 nfinite++;
 			 // if we've found spanning tree, then break
 			 if (nfinite == N - 1) { break; }

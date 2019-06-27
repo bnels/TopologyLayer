@@ -5,7 +5,7 @@ import numpy as np
 
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackward, persistenceForwardHom
-from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges
+from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges, critEdges2
 
 class SubLevelSetDiagram(Function):
     """
@@ -51,8 +51,8 @@ class SubLevelSetDiagram(Function):
 
 def CriticalEdges(X, y):
     """
-    return critical edges of a Flag complex
+    return critical edges of a levelset complex
     """
     X.extendFloat(y)
-    edges = np.array(critEdges(X))
+    edges = np.array(critEdges2(X))
     return edges.reshape(-1, 2)
