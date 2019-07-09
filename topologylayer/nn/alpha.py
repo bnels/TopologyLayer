@@ -1,5 +1,5 @@
 from topologylayer.util.construction import unique_simplices
-from topologylayer.functional.flag import FlagDiagram, CriticalEdges
+from topologylayer.functional.flag import FlagDiagram, CriticalEdges, GraphCriticalEdges
 from topologylayer.functional.persistence import SimplicialComplex
 from scipy.spatial import Delaunay
 
@@ -73,3 +73,8 @@ class AlphaLayer(nn.Module):
     def CriticalEdges(self, x):
         complex = self.init_complex(x)
         return CriticalEdges(complex, x)
+
+
+    def GraphCriticalEdges(self, x):
+        complex = self.init_complex(x)
+        return GraphCriticalEdges(complex, x)

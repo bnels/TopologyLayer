@@ -4,7 +4,7 @@ import numpy as np
 
 from torch.autograd import Variable, Function
 from .persistence import SimplicialComplex, persistenceForwardCohom, persistenceBackwardFlag, persistenceForwardHom
-from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges
+from .persistence import persistenceForwardUF, persistenceForwardUF2, critEdges, graphCritEdges
 
 class FlagDiagram(Function):
     """
@@ -50,8 +50,17 @@ class FlagDiagram(Function):
 
 def CriticalEdges(X, y):
     """
-    return critical edges of a Flag complex
+    return critical edges for PH0 of a Flag complex
     """
     X.extendFlag(y)
     edges = np.array(critEdges(X))
     return edges.reshape(-1, 2)
+
+
+def GraphCriticalEdges(X, y):
+    """
+    return critical edges for PH0 and PH1 of the 1-skeleton
+    """
+    X.extendFlag(y)
+    e0, e1 = graphCritEdges(X)
+    return np.array(e0).reshape(-1, 2), np.array(e1).reshape(-1, 2)

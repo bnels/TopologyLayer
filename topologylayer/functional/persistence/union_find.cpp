@@ -1,6 +1,7 @@
 #include <torch/extension.h>
 #include <iostream>
 #include <vector>
+#include <utility>
 #include <limits>
 #include <algorithm>
 #include <map>
@@ -229,7 +230,7 @@ torch::Tensor persistence_forward_uf2(SimplicialComplex &X) {
 	WARNING:
 	Does not return diagram, or set X.backprop_lookup
 */
-// returns critical 1-cells in ascending order
+// returns critical 1-cells in ascending filtration order
 // strict union-find imlementation
 std::vector<int> crit_edges_uf(SimplicialComplex &X) {
 
@@ -284,6 +285,81 @@ std::vector<int> crit_edges_uf(SimplicialComplex &X) {
 			 nfinite++;
 			 // if we've found spanning tree, then break
 			 if (nfinite == N - 1) { break; }
+		 }
+		 // else continue
+	}
+
+	return edges;
+}
+
+/*
+  compute critical edges for 0-dimensional and 1-dimensional persistence barcodes
+	 using union-find algorithm
+  INPUTS:
+		X - simplicial complex
+			IMPORTANT: assumes that X has been initialized, and filtration has been extended
+	OUTPUT: edges = std::pair<std::vector<int>, std::vector<int>>
+	first.(i,j) = (edges[2*k], edges[2*k+1]) is kth critical edge for H0
+	second.(i,j) = (edges[2*k], edges[2*k+1]) is kth critical edge for H1
+	WARNING:
+	Does not return diagram, or set X.backprop_lookup
+*/
+// returns critical 1-cells in ascending filtration order
+// strict union-find imlementation
+std::pair<std::vector<int>, std::vector<int>> graph_crit_edges(SimplicialComplex &X) {
+
+   // produce sort permutation on X
+   X.sortedOrder();
+
+   // initialize edge vector
+	 int N = X.numPairs(0);
+	 std::pair<std::vector<int>, std::vector<int>> edges;
+	 edges.first.reserve(2*N - 2); // maximum number of critical edges for H0
+
+
+	 // initialize parent vector
+	 std::vector<int> parent(N);
+	 std::iota(parent.begin(), parent.end(), 0);
+	 // ranks of each set
+	 std::vector<int> rank(N);
+	 std::fill(rank.begin(), rank.end(), 0);
+
+
+	 for (size_t k : X.filtration_perm ) {
+		 // loop over cells in permutation order
+		 if (X.dim(k) == 1) {
+			 // if a 1-cell, set:
+			 // death index in X.backprop_lookup
+			 // death time in diagram
+
+			 // first, get simplices on boundary
+			 int i = X.cells[k][0];
+			 int j = X.cells[k][1];
+
+			 // find parents
+			 int pi = find_parent(parent, i);
+			 int pj = find_parent(parent, j);
+
+			 // if parents are same, H1 is born
+			 if (pi == pj) {
+				 edges.second.push_back(i);
+				 edges.second.push_back(j);
+				 continue;
+			 }
+			 // else the edge is critical
+			 edges.first.push_back(i);
+			 edges.first.push_back(j);
+
+			 // merge sets
+			 if (rank[pi] > rank[pj]) {
+				 parent[pj] = pi;
+			 } else {
+				 parent[pi] = pj;
+				 if (rank[pi] == rank[pj]) {
+					 (rank[pj])++;
+				 }
+			 }
+
 		 }
 		 // else continue
 	}

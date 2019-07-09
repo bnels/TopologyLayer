@@ -13,5 +13,5 @@ torch::Tensor persistence_forward_uf2(SimplicialComplex &X);
 // returns critical 1-cells in ascending order
 std::vector<int> crit_edges_uf(SimplicialComplex &X);
 
-// strict union-find implementation
-std::vector<int> crit_edges_uf2(SimplicialComplex &X);
+// returns critical 1-cells for H0 and H1 on graph
+std::pair<std::vector<int>, std::vector<int>> graph_crit_edges(SimplicialComplex &X);

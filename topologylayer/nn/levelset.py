@@ -1,4 +1,4 @@
-from ..functional.sublevel import SubLevelSetDiagram, CriticalEdges
+from ..functional.sublevel import SubLevelSetDiagram, CriticalEdges, GraphCriticalEdges
 from topologylayer.functional.persistence import SimplicialComplex
 from topologylayer.util.construction import unique_simplices
 
@@ -48,6 +48,11 @@ class LevelSetLayer(nn.Module):
         if not self.sublevel:
             f = -f
         return CriticalEdges(self.complex, f)
+
+    def GraphCriticalEdges(self, f):
+        if not self.sublevel:
+            f = -f
+        return GraphCriticalEdges(self.complex, f)
 
 
 
