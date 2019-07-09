@@ -118,10 +118,12 @@ std::vector<torch::Tensor> persistence_forward_hom(SimplicialComplex &X, size_t 
 
    // produce sort permutation on X
    X.sortedOrder();
+	 // py::print("sorted filtration");
 
 	 // initialize reutrn diagram
 	 std::vector<torch::Tensor> diagram(MAXDIM+1); // return array
 	 for (size_t k = 0; k < MAXDIM+1; k++) {
+		 // py::print("k = ", k);
 		 int Nk = X.numPairs(k); // number of bars in dimension k
 		 // allocate return tensor
 		 diagram[k] = torch::empty({Nk,2},
@@ -130,9 +132,13 @@ std::vector<torch::Tensor> persistence_forward_hom(SimplicialComplex &X, size_t 
 		 // TODO: do this in intialization since number of pairs is deterministic
 		 X.backprop_lookup[k].resize(Nk);
 	 }
+	 // py::print("initialized output");
 
 	 // produce boundary matrix
 	 std::vector<SparseF2Vec<int>> B = sorted_boundary(X, MAXDIM);
+	 // py::print("created boundary");
+
+
 
 	 // run standard reduction algorithm
 	 std::map<int, int> pivot_to_col;
@@ -143,6 +149,7 @@ std::vector<torch::Tensor> persistence_forward_hom(SimplicialComplex &X, size_t 
 		 // modified reduction algorithm
 		 homology_reduction_alg2(B, pivot_to_col);
 	 }
+	 // py::print("ran algorithm");
 
 
 	 // keep track of how many pairs we've put in diagram
@@ -154,6 +161,7 @@ std::vector<torch::Tensor> persistence_forward_hom(SimplicialComplex &X, size_t 
 	 // fill in diagram
 	 for (size_t j = 0; j < B.size(); j++ ) {
 		 // see if column j is completely reduced
+		 // py::print("column ", j);
 
 		 if (B[j].nnz() == 0) {
 			 // homology born in column j

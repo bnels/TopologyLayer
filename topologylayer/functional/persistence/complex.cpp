@@ -131,7 +131,7 @@ void SimplicialComplex::initialize() {
 	}
 
 	// allocate backprop_lookup
-	backprop_lookup.resize(maxdim);
+	backprop_lookup.resize(maxdim+1);
 	// TODO: if we know how many pairs there are, we can pre-allocate everything
 
 
