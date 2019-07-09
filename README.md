@@ -382,6 +382,14 @@ where `y` is a `torch.tensor` that would be used in the relevant persistence cal
 `edges` is a `N x 2` NumPy array which records edges for which components merge, where `N` is the number of finite H0 bars. Edges are returned in filtration order so `edges[k]` is the `k`th edge.
 Note that this does not return a persistence diagram.
 
+## Graph Critical Edges
+
+You can obtain critical edges for both H0 and H1 persistence on the 1-skeleton of a complex using
+`e0, e1 = layer.GraphCriticalEdges(y)`
+where `y` is a `torch.tensor` that would be used in the relevant persistence calculation.
+
+`e0` should be the same as `edges` when calling `layer.CriticalEdges(y)`.  `e1` are the birth edges for `H1` in the same numpy array format.
+
 
 
 # (Deprecated) Dionysus Drivers
