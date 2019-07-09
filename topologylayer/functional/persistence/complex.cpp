@@ -1,9 +1,11 @@
 #include "complex.h"
 #include "cocycle.h"
+#include "hom.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <map>
+
 
 #include <torch/extension.h>
 namespace py = pybind11;
@@ -56,16 +58,20 @@ size_t SimplicialComplex::dim(size_t j) {
 	//return X.bdr[bindx].dim()
 }
 
-void SimplicialComplex::initialize() {
-    // to call after complex is built.
+std::vector<size_t> SimplicialComplex::betti_numbers(size_t MAXDIM){
+	return betti_numbers_hom(*this, MAXDIM);
+}
 
-    // allocate vectors
-    filtration_perm.reserve(cells.size());
-    full_function.reserve(cells.size());
-    function_map.reserve(cells.size());
+void SimplicialComplex::initialize() {
+  // to call after complex is built.
+
+  // allocate vectors
+  full_function.reserve(cells.size());
+  function_map.reserve(cells.size());
 
 
 	// first build reverse map
+	ncells.clear();
   std::map<std::vector<int>, size_t> reverse_map;
 	size_t maxdim  = 0;
 	size_t indx = 0;
@@ -74,17 +80,15 @@ void SimplicialComplex::initialize() {
 		size_t sdim = s.size()-1;
 		maxdim = (maxdim < sdim) ? sdim : maxdim;
 		// make sure ncells is large enough
-		while (ncells.size() < maxdim+1) {
+		while (ncells.size() < maxdim + 2) {
 			ncells.push_back(0);
 		}
 		++ncells[sdim]; // increment ncells in appropriate dimension
 	}
 
-	// allocate backprop_lookup
-	backprop_lookup.resize(maxdim);
-	// TODO: if we know how many pairs there are, we can pre-allocate everything
 
 	// inialize boundary
+	bdr.clear();
 	bdr.reserve(indx);
 
 
@@ -115,6 +119,22 @@ void SimplicialComplex::initialize() {
 		bdr.emplace_back(Cocycle(reverse_map[s],tmp));
 	}
 
+  // pre-compute homolgy of final complex so we know number of barcode pairs
+	std::vector<size_t> hdims = betti_numbers(maxdim);
+
+	// pre-compute number of homology pairs in each dimension
+	npairs.resize(maxdim + 2);
+	npairs[0] = ncells[0];
+	for (size_t i = 1; i < maxdim + 2; i++) {
+		// cells that don't kill off homology one dimension lower
+		npairs[i] = ncells[i] + hdims[i-1] - ncells[i-1] ;
+	}
+
+	// allocate backprop_lookup
+	backprop_lookup.resize(maxdim);
+	// TODO: if we know how many pairs there are, we can pre-allocate everything
+
+
 }
 
 void SimplicialComplex::printBoundary() {
@@ -126,8 +146,9 @@ void SimplicialComplex::printBoundary() {
 // in dim 0, number of bars is number of vertices
 // in dim k, number of bars is number that don't kill something one dim down.
 // in dim 1, need to account for infinite dim0 bar
-int SimplicialComplex::numPairs(int dim) {
-	return (dim == 0) ? ncells[0] : ncells[dim] - this->numPairs(dim-1) + ((dim == 1) ? 1 : 0);
+size_t SimplicialComplex::numPairs(size_t dim) {
+	return npairs[dim];
+	//return (dim == 0) ? ncells[0] : ncells[dim] - this->numPairs(dim-1) + ((dim == 1) ? 1 : 0);
 }
 
 

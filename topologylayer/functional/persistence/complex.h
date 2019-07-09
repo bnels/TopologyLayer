@@ -54,8 +54,14 @@ class SimplicialComplex{
     // hold boundary matrix of complex
     std::vector<Cocycle> bdr;
 
+    // hold number of barcode pairs in dach dimension
+    std::vector<size_t> npairs;
+
     // appends simplex to complex
     void append(std::vector<int> &x);
+
+    // returns betti numbers up to dimenion dim
+    std::vector<size_t> betti_numbers(size_t MAXDIM);
 
     // prints the list of simplices
     void printComplex();
@@ -73,7 +79,7 @@ class SimplicialComplex{
     void printDims();
 
     // get number of pairs for homology in dimension dim
-    int numPairs(int dim);
+    size_t numPairs(size_t dim);
 
     // print critical indices
     void printCritInds();

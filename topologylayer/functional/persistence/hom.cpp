@@ -186,3 +186,36 @@ std::vector<torch::Tensor> persistence_forward_hom(SimplicialComplex &X, size_t 
 
    return diagram;
  }
+
+
+// compute homology dimensions for final complex.  Returns dimensions up to MAXDIM
+std::vector<size_t> betti_numbers_hom(SimplicialComplex &X, size_t MAXDIM) {
+
+	std::vector<size_t> hdims(MAXDIM+1, 0); // fill with 0
+
+	X.filtration_perm.resize(X.cells.size());
+	X.inv_filtration_perm.resize(X.cells.size());
+	std::iota(X.filtration_perm.begin(), X.filtration_perm.end(), 0);
+	std::iota(X.inv_filtration_perm.begin(), X.inv_filtration_perm.end(), 0);
+
+	// produce boundary matrix
+	std::vector<SparseF2Vec<int>> B = sorted_boundary(X, MAXDIM);
+
+	// run standard reduction algorithm
+	std::map<int, int> pivot_to_col;
+
+	homology_reduction_alg(B, pivot_to_col);
+
+	for (size_t j = 0; j < B.size(); j++) {
+		if (B[j].nnz() == 0) {
+			size_t bindx = X.filtration_perm[j];
+			size_t dim = X.dim(bindx);
+			if (pivot_to_col.count(j) == 0) {
+				// no death of homology, so increment hdims
+				++hdims[dim];
+			}
+		}
+	}
+
+	return hdims;
+}
